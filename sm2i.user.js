@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Song Maker MIDI Importer
 // @namespace    csm.midi-importer
-// @version      1.0.0
+// @version      1.0.1
 // @description  Direct MIDI file importer for Chrome Music Lab's Song Maker.
 // @match        https://musiclab.chromeexperiments.com/Song-Maker*
 // @license      Apache-2.0
@@ -729,7 +729,11 @@
         // pushState load fills the timeline without touching tc(), so the
         // page never enables Save itself - unlock it, the song is already in.
         var saveBtn = document.getElementById('save-button');
-        if (saveBtn) saveBtn.removeAttribute('disabled');
+        if (saveBtn) {
+          var obs = new MutationObserver(function () { saveBtn.removeAttribute('disabled'); });
+          obs.observe(saveBtn, { attributes: true, attributeFilter: ['disabled'] });
+          setTimeout(function () { obs.disconnect(); }, 5000);
+        }
         var why = [];
         if (song.lost.octaves) why.push(song.lost.octaves + ' beyond 3 octaves of range');
         if (song.lost.tight) why.push(song.lost.tight + ' sharing a 16th cell');
